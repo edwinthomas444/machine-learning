@@ -1,0 +1,12 @@
+Age
+Gender
+Education
+Country
+Ethnicity
+Nscore
+Escore
+Oscore
+Ascore
+Cscore
+Impulsive
+SS

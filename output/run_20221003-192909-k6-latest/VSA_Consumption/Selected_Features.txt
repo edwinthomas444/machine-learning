@@ -1,0 +1,6 @@
+Age
+Education
+Country
+Cscore
+Impulsive
+SS
