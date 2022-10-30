@@ -1,6 +1,6 @@
 
 import pandas as pd
-from sklearn.model_selection import train_test_split, StratifiedShuffleSplit
+from sklearn.model_selection import train_test_split, StratifiedShuffleSplit, StratifiedKFold
 
 class Dataset:
     def __init__(self, file_path) -> None:
@@ -36,11 +36,32 @@ class Dataset:
         
         return cp_df
 
-    # return train and test splits
-    def create_dataset(self, label_col_name, split = 0.20):
+    def get_Xy(self, label_col_name):
         if label_col_name not in self.label_cnames:
             raise Exception(f"Column name {label_col_name} not present in dataset")
         X = self.pre_df[self.feature_cnames].drop(["ID"],axis=1)
         y = self.pre_df[[label_col_name]].astype(int).values.ravel()
-        train_x, test_x, train_y, test_y = train_test_split(X, y, stratify=y, test_size=split, random_state=3)
+        return X,y
+
+    def get_hold_out_splits(self, X, y, params):
+        train_x, test_x, train_y, test_y = train_test_split(X, y, stratify=y, test_size=params['splits'], random_state=3)
         return train_x, test_x, train_y, test_y
+
+    def get_k_fold_splits(self, X, y, params):
+        stf_fold = StratifiedKFold(n_splits=params['folds'], random_state=3, shuffle=True)
+        for train_ind, test_ind in stf_fold.split(X,y):
+            train_x, test_x = X.iloc[train_ind], X.iloc[test_ind]
+            train_y, test_y = y[train_ind], y[test_ind]
+            yield train_x, test_x, train_y, test_y
+
+    # return train and test splits
+    def create_dataset(self, label_col_name, method, params):
+        X, y = self.get_Xy(label_col_name)
+        if method == 'hold-out':
+            splits = self.get_hold_out_splits(X,y,params)
+        elif method == 'k-fold':
+            splits = self.get_k_fold_splits(X,y,params)
+        else:
+            raise Exception(f'Data split {method} not defined')
+
+        return splits
