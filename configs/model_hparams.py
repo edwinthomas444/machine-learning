@@ -18,7 +18,8 @@ tree_params = {'class_weight':['balanced',None,{0:1,1:10},{0:1,1:5}],
               'criterion':['gini','entropy','log_loss'],
               'min_samples_leaf':list(range(3,30)),
               'max_features':['sqrt','log2',None],
-              'splitter':['best','random']}
+              'splitter':['best','random'],
+              'random_state':[3]}
 
 
 # param definition for Random Forest Model
@@ -38,7 +39,8 @@ forest_params = {'class_weight':['balanced','None'],
               'n_estimators':list(range(20,51,5)),
               'bootstrap':[True],
               'oob_score':[True, False],
-              'max_samples':[0.2,0.25,0.30]} # % of dataset need to be sampled when bootstrop for tree prepared
+              'max_samples':[0.2,0.25,0.30],
+              'random_state':[3]} # % of dataset need to be sampled when bootstrop for tree prepared
 
 
 knn_params_small = {'n_neighbors':list(range(2,5)), 
@@ -61,10 +63,11 @@ svm_params = {'kernel':['linear', 'poly', 'rbf', 'sigmoid'],
                 'gamma':['scale','auto'], # changes scaling for kernel functions rbf, linear and sigmoid
                 'degree':list(range(0,4)),
                 'C':[0.2,0.5,1.0,10.0],
-                'probability':[True]}
+                'probability':[True],
+                'random_state':[3]}
 
 # default params for testing (comment to use full grid space)
-svm_params = {'probability':[True]}
+svm_params = {'probability':[True], 'random_state':[3]}
 knn_params = {}
-forest_params = {}
-tree_params = {}
+forest_params = {'random_state':[3]}
+tree_params = {'random_state':[3]}

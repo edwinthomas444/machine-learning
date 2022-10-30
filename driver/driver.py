@@ -12,6 +12,7 @@ from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import chi2
 from sklearn.feature_selection import f_classif
 from sklearn.model_selection import train_test_split, StratifiedShuffleSplit
+from sklearn.preprocessing import StandardScaler
 from dataset.dataset_base import Dataset
 from dataset.feature_select import FeatureSelection
 import pandas as pd
@@ -51,16 +52,26 @@ def driver():
             os.makedirs(dataset_dir, exist_ok=True)
 
         train_x, test_x, train_y, test_y = ds.create_dataset(label_col_name=label, split=0.33)
+        train_y_df = train_y
+        train_x_df = train_x
 
+        # Normalize data
+        scalar = StandardScaler()
+        scalar.fit(train_x)
+        train_x = scalar.transform(train_x)
+        test_x = scalar.transform(test_x)
+        
         # select features
         fs_algo = 'k_best'
         fs = FeatureSelection(algo='k_best')
+
         # explore data
-        train_y_df = train_y
         if isinstance(train_y, list) or isinstance(train_y, ndarray):
             train_y_df = pd.DataFrame(train_y,columns=[label])
-        
-        fs.explore_data(train_x, train_y_df, save_path=os.path.join(dataset_dir,"feature_analysis.png"))
+        if isinstance(train_x, list) or isinstance(train_x, ndarray):
+            train_x_df = pd.DataFrame(train_x,columns=train_x_df.columns, index=train_x_df.index)
+
+        fs.explore_data(train_x_df, train_y_df, save_path=os.path.join(dataset_dir,"feature_analysis.png"))
         # change value of k here
         fs.fit(train_x, train_y, params = {'k':6})
         print(f'Selected set of features for label: {label} and algo: {fs_algo}: {fs.get_selected_features()}')

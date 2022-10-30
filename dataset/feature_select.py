@@ -20,8 +20,8 @@ class FeatureSelection:
     def explore_data(self, X, Y, save_path):
         # utility to explore feature correlations
         # and separability w.r.t to target binary variable
-        X_norm = (X-X.mean())/X.std()
-        comb = pd.concat([Y,X_norm],axis=1)
+        # X_norm = (X-X.mean())/X.std()
+        comb = pd.concat([Y,X],axis=1)
         comb_data = pd.melt(comb,
                             id_vars = Y.columns[0],
                             var_name = "Feature",
