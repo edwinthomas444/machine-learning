@@ -4,11 +4,15 @@ from sklearn.metrics import roc_curve, auc, RocCurveDisplay
 import math
 
 
-def compute_precision(y_true, y_pred):
+def compute_precision(y_true, y_pred, pos_class=True):
     true_neg, false_pos, false_neg, true_pos = confusion_matrix(y_true, y_pred).ravel()
     precision = 0.0
-    if true_pos+false_pos != 0:
-        precision = true_pos/(true_pos+false_pos)
+    if pos_class:
+        if true_pos+false_pos != 0:
+            precision = true_pos/(true_pos+false_pos)
+    else:
+        if true_neg+false_neg != 0:
+            precision = true_neg/(true_neg+false_neg)
     return precision
 
 def compute_recall(y_true, y_pred):
@@ -85,6 +89,15 @@ def compute_metrics(y_true, y_pred, y_pred_prob=None):
     return all_metrics
 
 # score_fn based on gmean to weigh both class equally
-def score_fn(y_true, y_pred):
+def score_fn_gmean(y_true, y_pred):
     g_mean = compute_gmean(y_true, y_pred)
     return g_mean
+
+def score_fn_hybrid(y_true, y_pred):
+    g_mean = compute_gmean(y_true, y_pred)
+    precision_neg = compute_precision(y_true, y_pred, pos_class=False)
+    precision_pos = compute_precision(y_true, y_pred, pos_class=True)
+    p_mean = math.sqrt(precision_neg*precision_pos)
+
+    acc = compute_micro_acc(y_true, y_pred)
+    return acc

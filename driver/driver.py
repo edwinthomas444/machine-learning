@@ -37,14 +37,12 @@ def run_out_dir():
         
 def driver():
     output_dir = os.path.join('output',run_out_dir())
-    # perform all major tasks here
-    ds = Dataset('data/drug_consumption.data')
+
     # for each label create a dataset
-    pre_defined = True
-    if pre_defined:
-        filt_labels = ["Amphet","Cannabis","Ecstacy","LSD","Mushrooms","VSA"]
-    else:
-        filt_labels = ds.label_cnames 
+    
+    # filt_labels = ["Amphet","Cannabis","Ecstacy","LSD","Mushrooms","VSA"]
+    filt_labels = ["VSA"]
+   
     for label in filt_labels:
         # inside output dir, there will be one folder per dataset
         dataset_dir = os.path.join(output_dir, f'{label}_Consumption')
@@ -55,9 +53,12 @@ def driver():
         # create plot object
         best_metrics_models = []
 
-        
+        #### Dataset creation ####
+        ds = Dataset(file_path='data/drug_consumption.data',
+                    col_name=label)
+
         ##### Feature Selection based on hold-out train set ####################
-        train_x, test_x, train_y, test_y = ds.create_dataset(label_col_name=label, method='hold-out', params={'splits':0.33})
+        train_x, test_x, train_y, test_y = ds.create_splits(method='hold-out', params={'splits':0.33})
         train_y_df = train_y
         train_x_df = train_x
 
@@ -82,7 +83,7 @@ def driver():
         ###########################################################################
 
 
-        for f_ind, data in enumerate(ds.create_dataset(label_col_name=label, method='k-fold', params={'folds':10})):
+        for f_ind, data in enumerate(ds.create_splits(method='k-fold', params={'folds':9})):
             train_x, test_x, train_y, test_y = data
            
             # Normalize data
@@ -96,15 +97,17 @@ def driver():
             test_x_trans = fs.transform_data(test_x)
 
             # train using grid search and params
-            model_list = ['KNeighborsClassifier', 'RandomForestClassifier', 
-                        'DecisionTreeClassifier', 'SVC']
+            # model_list = ['KNeighborsClassifier', 'RandomForestClassifier', 
+            #             'DecisionTreeClassifier', 'SVC']
+            model_list = ['DecisionTreeClassifier']
 
             plot_obj = Plot(out_file=os.path.join(dataset_dir, f'ROC_plot_fold_{f_ind}.png'))
             for model_name in model_list:
                 mod = Model(model_name)
                 _, train_stats, best_param_dict = mod.custom_grid_search(params=param_dict[model_name],
                                                         dataX=train_x_trans, 
-                                                        dataY=train_y)
+                                                        dataY=train_y,
+                                                        oversample=True)
                 
                 # get roc curves for each of the models and store them
                 # model name, dclass_label_info, fpr, tpr

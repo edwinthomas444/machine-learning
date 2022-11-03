@@ -3,11 +3,14 @@ import pandas as pd
 from sklearn.model_selection import train_test_split, StratifiedShuffleSplit, StratifiedKFold
 
 class Dataset:
-    def __init__(self, file_path) -> None:
+    def __init__(self, file_path, col_name) -> None:
         self.fp = file_path
         self.df = self.read_df(file_path)
         # create a preprocessing dataframe
         self.pre_df = self.pre_process()
+        self.col_name = col_name
+        self.X, self.y = self.get_Xy(col_name)
+
     def read_df(self, file_name):
         df = pd.read_csv(file_name)
         return df
@@ -55,12 +58,11 @@ class Dataset:
             yield train_x, test_x, train_y, test_y
 
     # return train and test splits
-    def create_dataset(self, label_col_name, method, params):
-        X, y = self.get_Xy(label_col_name)
+    def create_splits(self, method, params):
         if method == 'hold-out':
-            splits = self.get_hold_out_splits(X,y,params)
+            splits = self.get_hold_out_splits(self.X,self.y,params)
         elif method == 'k-fold':
-            splits = self.get_k_fold_splits(X,y,params)
+            splits = self.get_k_fold_splits(self.X,self.y,params)
         else:
             raise Exception(f'Data split {method} not defined')
 

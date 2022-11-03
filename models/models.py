@@ -12,9 +12,15 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import make_scorer
 import pandas as pd
-from utils.scoring import score_fn
+from utils.scoring import score_fn_gmean, score_fn_hybrid
 
 from utils.scoring import compute_metrics
+
+from imblearn.pipeline import Pipeline, make_pipeline
+from imblearn.over_sampling import SMOTE 
+import numpy as np
+from sklearn.model_selection import StratifiedKFold
+
 
 models = [
     'KNeighborsClassifier',
@@ -31,11 +37,20 @@ class Model:
     def get_model(self):
         return self.mod
 
-    def custom_grid_search(self, params, dataX, dataY):
-        
-        custom_scorer = make_scorer(score_fn, greater_is_better=True)
-        grid = GridSearchCV(estimator=self.mod, param_grid=params, scoring=custom_scorer, 
-                            cv=5, verbose=10, return_train_score=True, refit=True)
+    def custom_grid_search(self, params, dataX, dataY, oversample=True):
+        cv_inner_hp= StratifiedKFold(n_splits=8, shuffle=True, random_state=1)
+        custom_scorer = make_scorer(score_fn_hybrid, greater_is_better=True)
+        if oversample:
+            imba_pipeline = make_pipeline(SMOTE(random_state=32), 
+                                          self.mod)
+            # convert params to imbpipeline format
+            new_params = {f'{self.name.lower()}__' + key: params[key] for key in params}
+            grid = GridSearchCV(imba_pipeline, param_grid=new_params, cv=cv_inner_hp, scoring=custom_scorer,
+                                verbose=10, return_train_score=True, refit=True)
+            
+        else:
+            grid = GridSearchCV(estimator=self.mod, param_grid=params, scoring=custom_scorer, 
+                                cv=cv_inner_hp, verbose=10, return_train_score=True, refit=True)
         grid.fit(dataX, dataY)
 
         # update mod
