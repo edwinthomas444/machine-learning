@@ -99,5 +99,5 @@ def score_fn_hybrid(y_true, y_pred):
     precision_pos = compute_precision(y_true, y_pred, pos_class=True)
     p_mean = math.sqrt(precision_neg*precision_pos)
 
-    acc = compute_micro_acc(y_true, y_pred)
-    return acc
+    # acc = compute_micro_acc(y_true, y_pred)
+    return p_mean + g_mean

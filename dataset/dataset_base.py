@@ -1,6 +1,8 @@
 
 import pandas as pd
 from sklearn.model_selection import train_test_split, StratifiedShuffleSplit, StratifiedKFold
+from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import MinMaxScaler
 
 class Dataset:
     def __init__(self, file_path, col_name) -> None:
@@ -45,16 +47,31 @@ class Dataset:
         X = self.pre_df[self.feature_cnames].drop(["ID"],axis=1)
         y = self.pre_df[[label_col_name]].astype(int).values.ravel()
         return X,y
+    
+    def normalize(self, train_x, test_x, norm = 'min-max'):
+        if norm == 'min-max':
+            scalar = MinMaxScaler()
+        else:
+            scalar = StandardScaler()
+        scalar.fit(train_x)
+        train_x, test_x = scalar.transform(train_x), scalar.transform(test_x)
+        return train_x, test_x
 
     def get_hold_out_splits(self, X, y, params):
         train_x, test_x, train_y, test_y = train_test_split(X, y, stratify=y, test_size=params['splits'], random_state=3)
-        return train_x, test_x, train_y, test_y
+        train_xn, test_xn = self.normalize(train_x, test_x)
+        train_x = pd.DataFrame(train_xn, columns=train_x.columns, index=train_x.index)
+        test_x = pd.DataFrame(test_xn, columns=test_x.columns, index=test_x.index)
+        yield train_x, test_x, train_y, test_y
 
     def get_k_fold_splits(self, X, y, params):
         stf_fold = StratifiedKFold(n_splits=params['folds'], random_state=3, shuffle=True)
         for train_ind, test_ind in stf_fold.split(X,y):
             train_x, test_x = X.iloc[train_ind], X.iloc[test_ind]
             train_y, test_y = y[train_ind], y[test_ind]
+            train_xn, test_xn = self.normalize(train_x, test_x)
+            train_x = pd.DataFrame(train_xn, columns=train_x.columns, index=train_x.index)
+            test_x = pd.DataFrame(test_xn, columns=test_x.columns, index=test_x.index)
             yield train_x, test_x, train_y, test_y
 
     # return train and test splits

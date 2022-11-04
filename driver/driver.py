@@ -58,10 +58,9 @@ def driver():
                     col_name=label)
 
         ##### Feature Selection based on hold-out train set ####################
-        train_x, test_x, train_y, test_y = ds.create_splits(method='hold-out', params={'splits':0.33})
+        train_x, test_x, train_y, test_y = next(ds.create_splits(method='hold-out', params={'splits':0.33}))
         train_y_df = train_y
-        train_x_df = train_x
-
+  
         # select features
         fs_algo = 'k_best'
         fs = FeatureSelection(algo='k_best')
@@ -69,10 +68,8 @@ def driver():
         # explore data
         if isinstance(train_y, list) or isinstance(train_y, ndarray):
             train_y_df = pd.DataFrame(train_y, columns=[label])
-        if isinstance(train_x, list) or isinstance(train_x, ndarray):
-            train_x_df = pd.DataFrame(train_x, columns=train_x_df.columns, index=train_x_df.index)
 
-        fs.explore_data(train_x_df, train_y_df, save_path=os.path.join(dataset_dir,"feature_analysis.png"))
+        fs.explore_data(train_x, train_y_df, save_path=os.path.join(dataset_dir,"feature_analysis.png"))
         # change value of k here
         fs.fit(train_x, train_y, params = {'k':6})
         print(f'Selected set of features for label: {label} and algo: {fs_algo}: {fs.get_selected_features()}')
@@ -82,24 +79,23 @@ def driver():
             [f.write(s_feat+"\n") for s_feat in fs.get_selected_features()]
         ###########################################################################
 
+        meth = 'k-fold'
+        par = {'folds':9}
 
-        for f_ind, data in enumerate(ds.create_splits(method='k-fold', params={'folds':9})):
+        # meth = 'hold-out'
+        # par = {'splits':0.33}
+
+        for f_ind, data in enumerate(ds.create_splits(method=meth, params=par)):
             train_x, test_x, train_y, test_y = data
-           
-            # Normalize data
-            scalar = StandardScaler()
-            scalar.fit(train_x)
-            train_x = scalar.transform(train_x)
-            test_x = scalar.transform(test_x)
-    
+
             # get reduced feature sets
             train_x_trans = fs.transform_data(train_x)
             test_x_trans = fs.transform_data(test_x)
 
             # train using grid search and params
-            # model_list = ['KNeighborsClassifier', 'RandomForestClassifier', 
-            #             'DecisionTreeClassifier', 'SVC']
-            model_list = ['DecisionTreeClassifier']
+            model_list = ['KNeighborsClassifier', 'RandomForestClassifier', 
+                        'DecisionTreeClassifier', 'SVC']
+            # model_list = ['DecisionTreeClassifier']
 
             plot_obj = Plot(out_file=os.path.join(dataset_dir, f'ROC_plot_fold_{f_ind}.png'))
             for model_name in model_list:
@@ -107,7 +103,7 @@ def driver():
                 _, train_stats, best_param_dict = mod.custom_grid_search(params=param_dict[model_name],
                                                         dataX=train_x_trans, 
                                                         dataY=train_y,
-                                                        oversample=True)
+                                                        oversample=False)
                 
                 # get roc curves for each of the models and store them
                 # model name, dclass_label_info, fpr, tpr

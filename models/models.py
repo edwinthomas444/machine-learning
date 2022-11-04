@@ -18,6 +18,8 @@ from utils.scoring import compute_metrics
 
 from imblearn.pipeline import Pipeline, make_pipeline
 from imblearn.over_sampling import SMOTE 
+from imblearn.over_sampling import RandomOverSampler
+
 import numpy as np
 from sklearn.model_selection import StratifiedKFold
 
@@ -41,7 +43,8 @@ class Model:
         cv_inner_hp= StratifiedKFold(n_splits=8, shuffle=True, random_state=1)
         custom_scorer = make_scorer(score_fn_hybrid, greater_is_better=True)
         if oversample:
-            imba_pipeline = make_pipeline(SMOTE(random_state=32), 
+            # SMOTE(random_state=32)
+            imba_pipeline = make_pipeline(RandomOverSampler(random_state=32), 
                                           self.mod)
             # convert params to imbpipeline format
             new_params = {f'{self.name.lower()}__' + key: params[key] for key in params}
