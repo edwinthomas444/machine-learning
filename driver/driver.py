@@ -16,9 +16,8 @@ from sklearn.preprocessing import StandardScaler
 from dataset.dataset_base import Dataset
 from dataset.feature_select import FeatureSelection
 import pandas as pd
-from configs.model_hparams import tree_params, forest_params, knn_params, svm_params
 from models.models import Model
-from configs.model_hparams import knn_params, tree_params, forest_params, svm_params
+from configs.model_hparams import knn_params, tree_params, forest_params, svm_params, mlp_params, gb_params
 from utils.plot_results import Plot
 import time
 
@@ -27,7 +26,9 @@ param_dict = {
     'KNeighborsClassifier':knn_params,
     'RandomForestClassifier':forest_params,
     'DecisionTreeClassifier':tree_params,
-    'SVC':svm_params
+    'SVC':svm_params,
+    'MLPClassifier':mlp_params,
+    'GradientBoostingClassifier':gb_params
 }
 
 def run_out_dir():
@@ -80,7 +81,7 @@ def driver():
         ###########################################################################
 
         meth = 'k-fold'
-        par = {'folds':9}
+        par = {'folds':10}
 
         # meth = 'hold-out'
         # par = {'splits':0.33}
@@ -94,8 +95,7 @@ def driver():
 
             # train using grid search and params
             model_list = ['KNeighborsClassifier', 'RandomForestClassifier', 
-                        'DecisionTreeClassifier', 'SVC']
-            # model_list = ['DecisionTreeClassifier']
+                        'DecisionTreeClassifier', 'SVC', 'MLPClassifier', 'GradientBoostingClassifier']
 
             plot_obj = Plot(out_file=os.path.join(dataset_dir, f'ROC_plot_fold_{f_ind}.png'))
             for model_name in model_list:

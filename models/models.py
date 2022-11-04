@@ -2,6 +2,8 @@ from sklearn.metrics import roc_curve, auc, RocCurveDisplay
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.neural_network import MLPClassifier
+from sklearn.ensemble import GradientBoostingClassifier
 
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import ConfusionMatrixDisplay
@@ -28,7 +30,9 @@ models = [
     'KNeighborsClassifier',
     'RandomForestClassifier',
     'DecisionTreeClassifier',
-    'SVC'
+    'SVC',
+    'MLPClassifier',
+    'GradientBoostingClassifier'
 ]
 
 class Model:
@@ -40,7 +44,7 @@ class Model:
         return self.mod
 
     def custom_grid_search(self, params, dataX, dataY, oversample=True):
-        cv_inner_hp= StratifiedKFold(n_splits=8, shuffle=True, random_state=1)
+        cv_inner_hp= StratifiedKFold(n_splits=9, shuffle=True, random_state=1)
         custom_scorer = make_scorer(score_fn_hybrid, greater_is_better=True)
         if oversample:
             # SMOTE(random_state=32)

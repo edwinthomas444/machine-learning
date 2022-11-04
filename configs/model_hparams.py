@@ -66,8 +66,26 @@ svm_params = {'kernel':['linear', 'poly', 'rbf', 'sigmoid'],
                 'probability':[True],
                 'random_state':[3]}
 
+mlp_params = {
+    'hidden_layer_sizes': [(10,30,10),(20,)],
+    'activation': ['identity','logistic','tanh', 'relu'],
+    'solver': ['lbfgs','sgd', 'adam'],
+    'alpha': [0.0001, 0.05],
+    'learning_rate': ['constant','adaptive','invscaling'],
+    'random_state': [3]
+}
+
+gb_params = {
+    'loss':['exponential','log_loss'],
+    'learning_rate':[0.1,0.25,0.5,0.75],
+    'max_depth':[3,4,5,6],
+    'min_samples_leaf':list(range(1,36,5)),
+    'random_state':[3]
+}
 # default params for testing (comment to use full grid space)
-svm_params = {'probability':[True], 'random_state':[3]}
-knn_params = {}
-forest_params = {'random_state':[3]}
-tree_params = {'random_state':[3]}
+# svm_params = {'probability':[True], 'random_state':[3]}
+# knn_params = {}
+# forest_params = {'random_state':[3]}
+# tree_params = {'random_state':[3]}
+# mlp_params = {'random_state': [3]}
+# gb_params = {'random_state': [3]}
