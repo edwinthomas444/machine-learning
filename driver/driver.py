@@ -13,7 +13,7 @@ from sklearn.feature_selection import chi2
 from sklearn.feature_selection import f_classif
 from sklearn.model_selection import train_test_split, StratifiedShuffleSplit
 from sklearn.preprocessing import StandardScaler
-from dataset.dataset_base import Dataset
+from dataset.dataset_base import DrugDataset, LabourDataset, HeartDiseaseDataset
 from dataset.feature_select import FeatureSelection
 import pandas as pd
 from models.models import Model
@@ -42,11 +42,12 @@ def driver():
     # for each label create a dataset
     
     # filt_labels = ["Amphet","Cannabis","Ecstacy","LSD","Mushrooms","VSA"]
-    filt_labels = ["VSA"]
-   
+    # filt_labels = ["Cannabis"]
+    # filt_labels = ["Labour"]
+    filt_labels = ["HeartDisease"]
     for label in filt_labels:
         # inside output dir, there will be one folder per dataset
-        dataset_dir = os.path.join(output_dir, f'{label}_Consumption')
+        dataset_dir = os.path.join(output_dir, f'{label}_Dataset')
         if not os.path.exists(dataset_dir):
             os.makedirs(dataset_dir, exist_ok=True)
 
@@ -55,13 +56,18 @@ def driver():
         best_metrics_models = []
 
         #### Dataset creation ####
-        ds = Dataset(file_path='data/drug_consumption.data',
-                    col_name=label)
+        # ds = DrugDataset(file_path='data/drug_consumption.data',
+        #             col_name=label)
+        # ds = LabourDataset(attr_file='data/labour_negotiations_attributes.xlsx',
+        #                     f1='data/labour_negotiations_train.txt',
+        #                     f2='data/labour_negotiations_test.txt')
+        ds = HeartDiseaseDataset(attr_file='data/uci_heart_disease_attributes.xlsx',
+                                f1='data/uci_heart_disease.csv')
 
         ##### Feature Selection based on hold-out train set ####################
         train_x, test_x, train_y, test_y = next(ds.create_splits(method='hold-out', params={'splits':0.33}))
         train_y_df = train_y
-  
+
         # select features
         fs_algo = 'k_best'
         fs = FeatureSelection(algo='k_best')
@@ -72,7 +78,7 @@ def driver():
 
         fs.explore_data(train_x, train_y_df, save_path=os.path.join(dataset_dir,"feature_analysis.png"))
         # change value of k here
-        fs.fit(train_x, train_y, params = {'k':6})
+        fs.fit(train_x, train_y, params = {'k':4})
         print(f'Selected set of features for label: {label} and algo: {fs_algo}: {fs.get_selected_features()}')
 
         # dump the selected features
@@ -121,7 +127,7 @@ def driver():
                 best_metrics_models.append(all_metrics)
 
             # plot the results.
-            plot_obj.plot(title=f'ROC curves for 4 models on {label} Consumption Classification',
+            plot_obj.plot(title=f'ROC curves for 4 models on {label} Classification',
                         xlabel='False Positive Rate',
                         ylabel='True Positive Rate')
 

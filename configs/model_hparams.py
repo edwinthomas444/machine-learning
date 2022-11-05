@@ -83,9 +83,9 @@ gb_params = {
     'random_state':[3]
 }
 # default params for testing (comment to use full grid space)
-# svm_params = {'probability':[True], 'random_state':[3]}
-# knn_params = {}
-# forest_params = {'random_state':[3]}
-# tree_params = {'random_state':[3]}
-# mlp_params = {'random_state': [3]}
-# gb_params = {'random_state': [3]}
+svm_params = {'probability':[True], 'random_state':[3]}
+knn_params = {}
+forest_params = {'random_state':[3]}
+tree_params = {'random_state':[3]}
+mlp_params = {'random_state': [3]}
+gb_params = {'random_state': [3]}

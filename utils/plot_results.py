@@ -17,6 +17,5 @@ class Plot:
         plt.ylabel(ylabel)
         plt.title(title)
         plt.legend()
-        # plt.show()
         plt.savefig(self.out_file)
 

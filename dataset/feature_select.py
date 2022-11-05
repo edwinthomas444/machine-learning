@@ -13,6 +13,7 @@ class FeatureSelection:
         if self.algo_name == 'k_best':
             self.algorithm = SelectKBest(f_classif, k=params['k'])
             self.algorithm.fit(X,Y)
+            # print(sorted([round(x,2) for x in self.algorithm.scores_]))
     def get_selected_features(self):
         return self.algorithm.get_feature_names_out()
     def transform_data(self, X):
