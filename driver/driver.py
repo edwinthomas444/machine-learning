@@ -12,12 +12,12 @@ from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import chi2
 from sklearn.feature_selection import f_classif
 from sklearn.model_selection import train_test_split, StratifiedShuffleSplit
-from dataset.dataset_base import Dataset
-from dataset.feature_select import FeatureSelection
+from sklearn.preprocessing import StandardScaler
+from dataset.dataset_base import DrugDataset, LabourDataset, HeartDiseaseDataset
+from dataset.feature_select import FeatureSelection, explore_data
 import pandas as pd
-from configs.model_hparams import tree_params, forest_params, knn_params, svm_params
 from models.models import Model
-from configs.model_hparams import knn_params, tree_params, forest_params, svm_params
+from configs.model_hparams_light import knn_params, tree_params, forest_params, svm_params, mlp_params, gb_params
 from utils.plot_results import Plot
 import time
 
@@ -26,7 +26,9 @@ param_dict = {
     'KNeighborsClassifier':knn_params,
     'RandomForestClassifier':forest_params,
     'DecisionTreeClassifier':tree_params,
-    'SVC':svm_params
+    'SVC':svm_params,
+    'MLPClassifier':mlp_params,
+    'GradientBoostingClassifier':gb_params
 }
 
 def run_out_dir():
@@ -36,80 +38,96 @@ def run_out_dir():
         
 def driver():
     output_dir = os.path.join('output',run_out_dir())
-    # perform all major tasks here
-    ds = Dataset('data/drug_consumption.data')
+
     # for each label create a dataset
-    pre_defined = True
-    if pre_defined:
-        filt_labels = ["Amphet","Cannabis","Ecstacy","LSD","Mushrooms","VSA"]
-    else:
-        filt_labels = ds.label_cnames 
+    
+    # filt_labels = ["Amphet","Cannabis","Ecstacy","LSD","Mushrooms","VSA"]
+    # filt_labels = ["Cannabis"]
+    # filt_labels = ["Labour"]
+    filt_labels = ["HeartDisease"]
+
     for label in filt_labels:
         # inside output dir, there will be one folder per dataset
-        dataset_dir = os.path.join(output_dir, f'{label}_Consumption')
+        dataset_dir = os.path.join(output_dir, f'{label}_Dataset')
         if not os.path.exists(dataset_dir):
             os.makedirs(dataset_dir, exist_ok=True)
 
-        train_x, test_x, train_y, test_y = ds.create_dataset(label_col_name=label, split=0.33)
-
-        # select features
-        fs_algo = 'k_best'
-        fs = FeatureSelection(algo='k_best')
-        # explore data
-        train_y_df = train_y
-        if isinstance(train_y, list) or isinstance(train_y, ndarray):
-            train_y_df = pd.DataFrame(train_y,columns=[label])
-        
-        fs.explore_data(train_x, train_y_df, save_path=os.path.join(dataset_dir,"feature_analysis.png"))
-        # change value of k here
-        fs.fit(train_x, train_y, params = {'k':6})
-        print(f'Selected set of features for label: {label} and algo: {fs_algo}: {fs.get_selected_features()}')
-
-        # get reduced feature sets
-        train_x_trans = fs.transform_data(train_x)
-        test_x_trans = fs.transform_data(test_x)
-
-        # train using grid search and params
-        model_list = ['KNeighborsClassifier', 'RandomForestClassifier', 
-                      'DecisionTreeClassifier', 'SVC']
-
-        
+        # init metrics and grah dict
         # create plot object
-        plot_obj = Plot(out_file=os.path.join(dataset_dir, 'ROC_plot.png'))
-
-
         best_metrics_models = []
-        for model_name in model_list:
-            mod = Model(model_name)
-            _, train_stats, best_param_dict = mod.custom_grid_search(params=param_dict[model_name],
-                                                    dataX=train_x_trans, 
-                                                    dataY=train_y)
-            
-            # get roc curves for each of the models and store them
-            # model name, dclass_label_info, fpr, tpr
-            all_metrics = mod.test(test_x_trans, test_y)
-            auc_sc = all_metrics['auc']
-            plot_obj.add_results(X = all_metrics['fpr'],
-                                 Y = all_metrics['tpr'],
-                                 label = f'ROC_{model_name} (AUC: {auc_sc:.2f})')
-            # save confusion matrix
-            all_metrics['confusion_matrix'].figure_.savefig(os.path.join(dataset_dir,f'CM_{model_name}.png'))
-            all_metrics['best_params'] = best_param_dict
-            best_metrics_models.append(all_metrics)
 
-        # plot the results.
-        plot_obj.plot(title=f'ROC curves for 4 models on {label} Consumption Classification',
-                      xlabel='False Positive Rate',
-                      ylabel='True Positive Rate')
+        #### Dataset creation ####
+        ds = DrugDataset(file_path='data/drug_consumption.data',
+                        col_name=label)
+        num_features = 6
+
+        # ds = LabourDataset(attr_file='data/labour_negotiations_attributes.xlsx',
+        #                     f1='data/labour_negotiations_train.txt',
+        #                     f2='data/labour_negotiations_test.txt')
+        # num_features = 12
+
+        # ds = HeartDiseaseDataset(attr_file='data/uci_heart_disease_attributes.xlsx',
+        #                          f1='data/uci_heart_disease.csv')
+        # num_features = 12
+
+        ###### Split Definitions ####
+
+        # meth = 'k-fold'
+        # par = {'folds':10}
+
+        meth = 'rep-k-fold'
+        par = {'folds':10, 'repeats':2}
+
+        # meth = 'hold-out'
+        # par = {'splits':0.33}
+
+        for f_ind, data in enumerate(ds.create_splits(method=meth, params=par)):
+            train_x, test_x, train_y, test_y = data
+            # explore the fold data (violin plots)
+            train_y_df = pd.DataFrame(train_y, columns=[label])
+            explore_data(train_x, train_y_df, save_path=os.path.join(dataset_dir,f"feature_analysis_fold{f_ind}.png"))
+
+            # train using grid search and params
+            model_list = ['KNeighborsClassifier', 'RandomForestClassifier', 
+                        'DecisionTreeClassifier', 'SVC', 'MLPClassifier', 'GradientBoostingClassifier']
+
+            plot_obj = Plot(out_file=os.path.join(dataset_dir, f'ROC_plot_fold_{f_ind}.png'))
+            for model_name in model_list:
+                mod = Model(model_name)
+                _, train_stats, best_param_dict = mod.custom_grid_search(params=param_dict[model_name],
+                                                                        dataX=train_x, 
+                                                                        dataY=train_y,
+                                                                        num_features = num_features,
+                                                                        oversample=False)
+
+                # save selected features of best model in each fold after nested cross validation
+                with open(os.path.join(dataset_dir, f'Selected_Features_fold_{f_ind}_model_{model_name}.txt'),'w') as f:
+                    [f.write(s_feat+"\n") for s_feat in train_x.columns[mod.mod.named_steps['selectkbest'].get_support()]]
+
+                all_metrics = mod.test(test_x, test_y)
+                auc_sc = all_metrics['auc']
+                plot_obj.add_results(X = all_metrics['fpr'],
+                                    Y = all_metrics['tpr'],
+                                    label = f'ROC_{model_name}_fold_{f_ind} (AUC: {auc_sc:.2f})')
+                # save confusion matrix
+                all_metrics['confusion_matrix'].figure_.savefig(os.path.join(dataset_dir,f'CM_{model_name}_fold{f_ind}.png'))
+                all_metrics['best_params'] = best_param_dict
+
+                # adding fold index
+                all_metrics['fold'] = f_ind
+                best_metrics_models.append(all_metrics)
+
+            # plot the results.
+            plot_obj.plot(title=f'ROC curves for 4 models on {label} Classification',
+                        xlabel='False Positive Rate',
+                        ylabel='True Positive Rate')
+
         # save the best model hparams for each dataset in .csv
         df_model_meta = pd.DataFrame(best_metrics_models)
         df_model_meta.to_csv(os.path.join(dataset_dir, 'BestModel_MetaData.csv'))
 
-        # dump the selected features
-        with open(os.path.join(dataset_dir, 'Selected_Features.txt'),'w') as f:
-            [f.write(s_feat+"\n") for s_feat in fs.get_selected_features()]
-                
-
+            
+                        
 def main():
     # call the main driver
     driver()
