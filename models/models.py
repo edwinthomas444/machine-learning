@@ -7,7 +7,7 @@ from sklearn.ensemble import GradientBoostingClassifier
 
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import ConfusionMatrixDisplay
-
+from sklearn.impute import SimpleImputer
 
 from sklearn.svm import SVC
 import matplotlib.pyplot as plt
@@ -21,10 +21,14 @@ from utils.scoring import compute_metrics
 from imblearn.pipeline import Pipeline, make_pipeline
 from imblearn.over_sampling import SMOTE 
 from imblearn.over_sampling import RandomOverSampler
+from sklearn.feature_selection import SelectKBest
 
 import numpy as np
 from sklearn.model_selection import StratifiedKFold
-
+from sklearn.preprocessing import StandardScaler
+from sklearn.feature_selection import f_classif
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.pipeline import Pipeline
 
 models = [
     'KNeighborsClassifier',
@@ -43,21 +47,30 @@ class Model:
     def get_model(self):
         return self.mod
 
-    def custom_grid_search(self, params, dataX, dataY, oversample=True):
+    def custom_grid_search(self, params, dataX, dataY, num_features, oversample=True):
         cv_inner_hp= StratifiedKFold(n_splits=9, shuffle=True, random_state=1)
         custom_scorer = make_scorer(score_fn_hybrid, greater_is_better=True)
+        new_params = {f'{self.name.lower()}__' + key: params[key] for key in params}
         if oversample:
             # SMOTE(random_state=32)
-            imba_pipeline = make_pipeline(RandomOverSampler(random_state=32), 
+            # RandomOverSampler(random_state=32)
+            imba_pipeline = make_pipeline(SimpleImputer(missing_values=np.nan, strategy='mean'),
+                                          MinMaxScaler(),
+                                          SelectKBest(f_classif, k=num_features),
+                                          SMOTE(random_state=32), 
                                           self.mod)
             # convert params to imbpipeline format
-            new_params = {f'{self.name.lower()}__' + key: params[key] for key in params}
             grid = GridSearchCV(imba_pipeline, param_grid=new_params, cv=cv_inner_hp, scoring=custom_scorer,
-                                verbose=10, return_train_score=True, refit=True)
+                                verbose=10, return_train_score=True, refit=True, n_jobs=-1)
             
         else:
-            grid = GridSearchCV(estimator=self.mod, param_grid=params, scoring=custom_scorer, 
-                                cv=cv_inner_hp, verbose=10, return_train_score=True, refit=True)
+            pipeline = Pipeline([('imputer',SimpleImputer(missing_values=np.nan, strategy='mean')),
+                                 ('scalar',MinMaxScaler()),
+                                 ('selectkbest',SelectKBest(f_classif, k=num_features)),
+                                 (self.name.lower(),self.mod)])
+
+            grid = GridSearchCV(estimator=pipeline, param_grid=new_params, scoring=custom_scorer, 
+                                cv=cv_inner_hp, verbose=10, return_train_score=True, refit=True, n_jobs=-1)
         grid.fit(dataX, dataY)
 
         # update mod

@@ -5,6 +5,24 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import pandas as pd
 
+def explore_data(X, Y, save_path):
+    # utility to explore feature correlations
+    # and separability w.r.t to target binary variable
+    X_norm = (X-X.mean())/X.std()
+    comb = pd.concat([Y,X_norm],axis=1)
+    comb_data = pd.melt(comb,
+                        id_vars = Y.columns[0],
+                        var_name = "Feature",
+                        value_name = "FeatureValue")
+    plt.figure(figsize=(10,10))
+    vplot = sns.violinplot(x="Feature", 
+                            y="FeatureValue", 
+                            hue=Y.columns[0], 
+                            data=comb_data,
+                            split=True,
+                            inner="quart")
+    vplot.figure.savefig(save_path)
+
 class FeatureSelection:
     def __init__(self, algo) -> None:
         self.algo_name = algo
@@ -18,20 +36,4 @@ class FeatureSelection:
         return self.algorithm.get_feature_names_out()
     def transform_data(self, X):
         return self.algorithm.transform(X)
-    def explore_data(self, X, Y, save_path):
-        # utility to explore feature correlations
-        # and separability w.r.t to target binary variable
-        # X_norm = (X-X.mean())/X.std()
-        comb = pd.concat([Y,X],axis=1)
-        comb_data = pd.melt(comb,
-                            id_vars = Y.columns[0],
-                            var_name = "Feature",
-                            value_name = "FeatureValue")
-        plt.figure(figsize=(10,10))
-        vplot = sns.violinplot(x="Feature", 
-                               y="FeatureValue", 
-                               hue=Y.columns[0], 
-                               data=comb_data,
-                               split=True,
-                               inner="quart")
-        vplot.figure.savefig(save_path)
+    

@@ -1,6 +1,6 @@
 
 import pandas as pd
-from sklearn.model_selection import train_test_split, StratifiedShuffleSplit, StratifiedKFold
+from sklearn.model_selection import train_test_split, StratifiedShuffleSplit, StratifiedKFold, RepeatedStratifiedKFold
 from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import MinMaxScaler
 import numpy as np
@@ -49,9 +49,6 @@ class HeartDiseaseDataset:
 
     def get_hold_out_splits(self, X, y, params):
         train_x, test_x, train_y, test_y = train_test_split(X, y, stratify=y, test_size=params['splits'], random_state=3)
-        train_xn, test_xn = self.normalize(train_x, test_x)
-        train_x = pd.DataFrame(train_xn, columns=train_x.columns, index=train_x.index)
-        test_x = pd.DataFrame(test_xn, columns=test_x.columns, index=test_x.index)
         yield train_x, test_x, train_y, test_y
 
     def get_k_fold_splits(self, X, y, params):
@@ -59,9 +56,13 @@ class HeartDiseaseDataset:
         for train_ind, test_ind in stf_fold.split(X,y):
             train_x, test_x = X.iloc[train_ind], X.iloc[test_ind]
             train_y, test_y = y[train_ind], y[test_ind]
-            train_xn, test_xn = self.normalize(train_x, test_x)
-            train_x = pd.DataFrame(train_xn, columns=train_x.columns, index=train_x.index)
-            test_x = pd.DataFrame(test_xn, columns=test_x.columns, index=test_x.index)
+            yield train_x, test_x, train_y, test_y
+
+    def get_rep_k_fold_splits(self, X, y, params):
+        stf_fold = RepeatedStratifiedKFold(n_splits=params['folds'], n_repeats=params['repeats'], random_state=3)
+        for train_ind, test_ind in stf_fold.split(X,y):
+            train_x, test_x = X.iloc[train_ind], X.iloc[test_ind]
+            train_y, test_y = y[train_ind], y[test_ind]
             yield train_x, test_x, train_y, test_y
 
     # return train and test splits
@@ -70,6 +71,8 @@ class HeartDiseaseDataset:
             splits = self.get_hold_out_splits(self.X,self.y,params)
         elif method == 'k-fold':
             splits = self.get_k_fold_splits(self.X,self.y,params)
+        elif method == 'rep-k-fold':
+            splits = self.get_rep_k_fold_splits(self.X,self.y,params)
         else:
             raise Exception(f'Data split {method} not defined')
 
@@ -130,7 +133,7 @@ class LabourDataset:
         df_num = self.pre_df[cont_features].astype(float)
         df_label =  self.pre_df['label']
         # replace nan with avg
-        df_num.fillna(df_num.mean(), inplace=True)
+        # df_num.fillna(df_num.mean(), inplace=True)
         # concat them
         X = pd.concat([df_cvt, df_num], axis='columns')
         y = df_label.astype(int).values.ravel()
@@ -158,9 +161,6 @@ class LabourDataset:
 
     def get_hold_out_splits(self, X, y, params):
         train_x, test_x, train_y, test_y = train_test_split(X, y, stratify=y, test_size=params['splits'], random_state=3)
-        train_xn, test_xn = self.normalize(train_x, test_x)
-        train_x = pd.DataFrame(train_xn, columns=train_x.columns, index=train_x.index)
-        test_x = pd.DataFrame(test_xn, columns=test_x.columns, index=test_x.index)
         yield train_x, test_x, train_y, test_y
 
     def get_k_fold_splits(self, X, y, params):
@@ -168,9 +168,13 @@ class LabourDataset:
         for train_ind, test_ind in stf_fold.split(X,y):
             train_x, test_x = X.iloc[train_ind], X.iloc[test_ind]
             train_y, test_y = y[train_ind], y[test_ind]
-            train_xn, test_xn = self.normalize(train_x, test_x)
-            train_x = pd.DataFrame(train_xn, columns=train_x.columns, index=train_x.index)
-            test_x = pd.DataFrame(test_xn, columns=test_x.columns, index=test_x.index)
+            yield train_x, test_x, train_y, test_y
+
+    def get_rep_k_fold_splits(self, X, y, params):
+        stf_fold = RepeatedStratifiedKFold(n_splits=params['folds'], n_repeats=params['repeats'], random_state=3)
+        for train_ind, test_ind in stf_fold.split(X,y):
+            train_x, test_x = X.iloc[train_ind], X.iloc[test_ind]
+            train_y, test_y = y[train_ind], y[test_ind]
             yield train_x, test_x, train_y, test_y
 
     # return train and test splits
@@ -179,6 +183,8 @@ class LabourDataset:
             splits = self.get_hold_out_splits(self.X,self.y,params)
         elif method == 'k-fold':
             splits = self.get_k_fold_splits(self.X,self.y,params)
+        elif method == 'rep-k-fold':
+            splits = self.get_rep_k_fold_splits(self.X,self.y,params)
         else:
             raise Exception(f'Data split {method} not defined')
 
@@ -240,9 +246,6 @@ class DrugDataset:
 
     def get_hold_out_splits(self, X, y, params):
         train_x, test_x, train_y, test_y = train_test_split(X, y, stratify=y, test_size=params['splits'], random_state=3)
-        train_xn, test_xn = self.normalize(train_x, test_x)
-        train_x = pd.DataFrame(train_xn, columns=train_x.columns, index=train_x.index)
-        test_x = pd.DataFrame(test_xn, columns=test_x.columns, index=test_x.index)
         yield train_x, test_x, train_y, test_y
 
     def get_k_fold_splits(self, X, y, params):
@@ -250,9 +253,13 @@ class DrugDataset:
         for train_ind, test_ind in stf_fold.split(X,y):
             train_x, test_x = X.iloc[train_ind], X.iloc[test_ind]
             train_y, test_y = y[train_ind], y[test_ind]
-            train_xn, test_xn = self.normalize(train_x, test_x)
-            train_x = pd.DataFrame(train_xn, columns=train_x.columns, index=train_x.index)
-            test_x = pd.DataFrame(test_xn, columns=test_x.columns, index=test_x.index)
+            yield train_x, test_x, train_y, test_y
+
+    def get_rep_k_fold_splits(self, X, y, params):
+        stf_fold = RepeatedStratifiedKFold(n_splits=params['folds'], n_repeats=params['repeats'], random_state=3)
+        for train_ind, test_ind in stf_fold.split(X,y):
+            train_x, test_x = X.iloc[train_ind], X.iloc[test_ind]
+            train_y, test_y = y[train_ind], y[test_ind]
             yield train_x, test_x, train_y, test_y
 
     # return train and test splits
@@ -261,6 +268,8 @@ class DrugDataset:
             splits = self.get_hold_out_splits(self.X,self.y,params)
         elif method == 'k-fold':
             splits = self.get_k_fold_splits(self.X,self.y,params)
+        elif method == 'rep-k-fold':
+            splits = self.get_rep_k_fold_splits(self.X,self.y,params)
         else:
             raise Exception(f'Data split {method} not defined')
 

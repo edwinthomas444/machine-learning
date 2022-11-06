@@ -1,13 +1,13 @@
 
 tree_params = {'class_weight':['balanced',None],
               'criterion':['gini','entropy','log_loss'],
-              'min_samples_leaf':list(range(15,30,2)),
+              'min_samples_leaf':list(range(1,30,2)),
               'max_features':['sqrt', None],
               'splitter':['best'],
               'random_state':[3]}
 
 
-forest_params = {'class_weight':['balanced','None'],
+forest_params = {'class_weight':['balanced',None],
               'criterion':['gini','entropy'],
               'min_samples_leaf':list(range(1,36,5)), # 10, 40 ,5
               'max_features':['sqrt'],

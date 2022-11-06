@@ -14,10 +14,10 @@ from sklearn.feature_selection import f_classif
 from sklearn.model_selection import train_test_split, StratifiedShuffleSplit
 from sklearn.preprocessing import StandardScaler
 from dataset.dataset_base import DrugDataset, LabourDataset, HeartDiseaseDataset
-from dataset.feature_select import FeatureSelection
+from dataset.feature_select import FeatureSelection, explore_data
 import pandas as pd
 from models.models import Model
-from configs.model_hparams import knn_params, tree_params, forest_params, svm_params, mlp_params, gb_params
+from configs.model_hparams_light import knn_params, tree_params, forest_params, svm_params, mlp_params, gb_params
 from utils.plot_results import Plot
 import time
 
@@ -45,6 +45,7 @@ def driver():
     # filt_labels = ["Cannabis"]
     # filt_labels = ["Labour"]
     filt_labels = ["HeartDisease"]
+
     for label in filt_labels:
         # inside output dir, there will be one folder per dataset
         dataset_dir = os.path.join(output_dir, f'{label}_Dataset')
@@ -56,48 +57,35 @@ def driver():
         best_metrics_models = []
 
         #### Dataset creation ####
-        # ds = DrugDataset(file_path='data/drug_consumption.data',
-        #             col_name=label)
+        ds = DrugDataset(file_path='data/drug_consumption.data',
+                        col_name=label)
+        num_features = 6
+
         # ds = LabourDataset(attr_file='data/labour_negotiations_attributes.xlsx',
         #                     f1='data/labour_negotiations_train.txt',
         #                     f2='data/labour_negotiations_test.txt')
-        ds = HeartDiseaseDataset(attr_file='data/uci_heart_disease_attributes.xlsx',
-                                f1='data/uci_heart_disease.csv')
+        # num_features = 12
 
-        ##### Feature Selection based on hold-out train set ####################
-        train_x, test_x, train_y, test_y = next(ds.create_splits(method='hold-out', params={'splits':0.33}))
-        train_y_df = train_y
+        # ds = HeartDiseaseDataset(attr_file='data/uci_heart_disease_attributes.xlsx',
+        #                          f1='data/uci_heart_disease.csv')
+        # num_features = 12
 
-        # select features
-        fs_algo = 'k_best'
-        fs = FeatureSelection(algo='k_best')
+        ###### Split Definitions ####
 
-        # explore data
-        if isinstance(train_y, list) or isinstance(train_y, ndarray):
-            train_y_df = pd.DataFrame(train_y, columns=[label])
+        # meth = 'k-fold'
+        # par = {'folds':10}
 
-        fs.explore_data(train_x, train_y_df, save_path=os.path.join(dataset_dir,"feature_analysis.png"))
-        # change value of k here
-        fs.fit(train_x, train_y, params = {'k':4})
-        print(f'Selected set of features for label: {label} and algo: {fs_algo}: {fs.get_selected_features()}')
-
-        # dump the selected features
-        with open(os.path.join(dataset_dir, 'Selected_Features.txt'),'w') as f:
-            [f.write(s_feat+"\n") for s_feat in fs.get_selected_features()]
-        ###########################################################################
-
-        meth = 'k-fold'
-        par = {'folds':10}
+        meth = 'rep-k-fold'
+        par = {'folds':10, 'repeats':2}
 
         # meth = 'hold-out'
         # par = {'splits':0.33}
 
         for f_ind, data in enumerate(ds.create_splits(method=meth, params=par)):
             train_x, test_x, train_y, test_y = data
-
-            # get reduced feature sets
-            train_x_trans = fs.transform_data(train_x)
-            test_x_trans = fs.transform_data(test_x)
+            # explore the fold data (violin plots)
+            train_y_df = pd.DataFrame(train_y, columns=[label])
+            explore_data(train_x, train_y_df, save_path=os.path.join(dataset_dir,f"feature_analysis_fold{f_ind}.png"))
 
             # train using grid search and params
             model_list = ['KNeighborsClassifier', 'RandomForestClassifier', 
@@ -107,13 +95,16 @@ def driver():
             for model_name in model_list:
                 mod = Model(model_name)
                 _, train_stats, best_param_dict = mod.custom_grid_search(params=param_dict[model_name],
-                                                        dataX=train_x_trans, 
-                                                        dataY=train_y,
-                                                        oversample=False)
-                
-                # get roc curves for each of the models and store them
-                # model name, dclass_label_info, fpr, tpr
-                all_metrics = mod.test(test_x_trans, test_y)
+                                                                        dataX=train_x, 
+                                                                        dataY=train_y,
+                                                                        num_features = num_features,
+                                                                        oversample=False)
+
+                # save selected features of best model in each fold after nested cross validation
+                with open(os.path.join(dataset_dir, f'Selected_Features_fold_{f_ind}_model_{model_name}.txt'),'w') as f:
+                    [f.write(s_feat+"\n") for s_feat in train_x.columns[mod.mod.named_steps['selectkbest'].get_support()]]
+
+                all_metrics = mod.test(test_x, test_y)
                 auc_sc = all_metrics['auc']
                 plot_obj.add_results(X = all_metrics['fpr'],
                                     Y = all_metrics['tpr'],
