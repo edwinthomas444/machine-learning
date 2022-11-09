@@ -21,6 +21,7 @@ from utils.scoring import compute_metrics
 from imblearn.pipeline import Pipeline, make_pipeline
 from imblearn.over_sampling import SMOTE 
 from imblearn.over_sampling import RandomOverSampler
+from imblearn.under_sampling import RandomUnderSampler
 from sklearn.feature_selection import SelectKBest
 
 import numpy as np
@@ -29,6 +30,10 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.feature_selection import f_classif
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.pipeline import Pipeline
+from imblearn.under_sampling import ClusterCentroids
+from imblearn.under_sampling import OneSidedSelection
+from imblearn.over_sampling import BorderlineSMOTE
+from enum import Enum
 
 models = [
     'KNeighborsClassifier',
@@ -39,6 +44,11 @@ models = [
     'GradientBoostingClassifier'
 ]
 
+class Sampling(Enum):
+    nosampling = 0
+    oversample = 2
+    undersample = 3
+
 class Model:
     def __init__(self, name) -> None:
         self.name = name
@@ -47,22 +57,34 @@ class Model:
     def get_model(self):
         return self.mod
 
-    def custom_grid_search(self, params, dataX, dataY, num_features, oversample=True):
+    def custom_grid_search(self, params, dataX, dataY, num_features, sample=Sampling.nosampling):
         cv_inner_hp= StratifiedKFold(n_splits=9, shuffle=True, random_state=1)
         custom_scorer = make_scorer(score_fn_hybrid, greater_is_better=True)
         new_params = {f'{self.name.lower()}__' + key: params[key] for key in params}
-        if oversample:
+        if sample==Sampling.oversample:
             # SMOTE(random_state=32)
             # RandomOverSampler(random_state=32)
+            # BorderlineSMOTE(random_state=32)
             imba_pipeline = make_pipeline(SimpleImputer(missing_values=np.nan, strategy='mean'),
+                                          RandomOverSampler(random_state=32, n_jobs=-1),
                                           MinMaxScaler(),
                                           SelectKBest(f_classif, k=num_features),
-                                          SMOTE(random_state=32), 
                                           self.mod)
             # convert params to imbpipeline format
             grid = GridSearchCV(imba_pipeline, param_grid=new_params, cv=cv_inner_hp, scoring=custom_scorer,
                                 verbose=10, return_train_score=True, refit=True, n_jobs=-1)
-            
+        elif sample==Sampling.undersample:
+            # ClusterCentroids(random_state=32)
+            # RandomUnderSampler(random_state=32)
+            # OneSidedSelection(random_state=32)
+            imba_pipeline = make_pipeline(SimpleImputer(missing_values=np.nan, strategy='mean'),
+                                          RandomUnderSampler(random_state=32)(random_state=32, n_jobs=-1),
+                                          MinMaxScaler(),
+                                          SelectKBest(f_classif, k=num_features),
+                                          self.mod)
+            # convert params to imbpipeline format
+            grid = GridSearchCV(imba_pipeline, param_grid=new_params, cv=cv_inner_hp, scoring=custom_scorer,
+                                verbose=10, return_train_score=True, refit=True, n_jobs=-1)
         else:
             pipeline = Pipeline([('imputer',SimpleImputer(missing_values=np.nan, strategy='mean')),
                                  ('scalar',MinMaxScaler()),

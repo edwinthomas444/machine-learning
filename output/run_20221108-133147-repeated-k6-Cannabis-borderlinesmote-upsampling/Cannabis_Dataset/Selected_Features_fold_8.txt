@@ -1,0 +1,6 @@
+Age
+Gender
+Country
+Oscore
+Cscore
+SS

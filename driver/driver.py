@@ -20,6 +20,7 @@ from models.models import Model
 from configs.model_hparams_light import knn_params, tree_params, forest_params, svm_params, mlp_params, gb_params
 from utils.plot_results import Plot
 import time
+from models.models import Sampling
 
 
 param_dict = {
@@ -42,9 +43,9 @@ def driver():
     # for each label create a dataset
     
     # filt_labels = ["Amphet","Cannabis","Ecstacy","LSD","Mushrooms","VSA"]
-    # filt_labels = ["Cannabis"]
+    filt_labels = ["Cannabis"]
     # filt_labels = ["Labour"]
-    filt_labels = ["HeartDisease"]
+    # filt_labels = ["HeartDisease"]
 
     for label in filt_labels:
         # inside output dir, there will be one folder per dataset
@@ -68,7 +69,7 @@ def driver():
 
         # ds = HeartDiseaseDataset(attr_file='data/uci_heart_disease_attributes.xlsx',
         #                          f1='data/uci_heart_disease.csv')
-        # num_features = 12
+        # num_features = 14
 
         ###### Split Definitions ####
 
@@ -98,10 +99,10 @@ def driver():
                                                                         dataX=train_x, 
                                                                         dataY=train_y,
                                                                         num_features = num_features,
-                                                                        oversample=False)
+                                                                        sample=Sampling.oversample)
 
                 # save selected features of best model in each fold after nested cross validation
-                with open(os.path.join(dataset_dir, f'Selected_Features_fold_{f_ind}_model_{model_name}.txt'),'w') as f:
+                with open(os.path.join(dataset_dir, f'Selected_Features_fold_{f_ind}.txt'),'w') as f:
                     [f.write(s_feat+"\n") for s_feat in train_x.columns[mod.mod.named_steps['selectkbest'].get_support()]]
 
                 all_metrics = mod.test(test_x, test_y)
