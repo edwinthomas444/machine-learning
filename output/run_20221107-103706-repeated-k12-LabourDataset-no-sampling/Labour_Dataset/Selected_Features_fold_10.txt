@@ -1,0 +1,12 @@
+pension_none
+dntl_ins_full
+dntl_ins_none
+empl_hplan_none
+educ_allw_false
+lngtrm_disabil_false
+bereavement_false
+wage1
+wage2
+wage3
+stby_pay
+holidays

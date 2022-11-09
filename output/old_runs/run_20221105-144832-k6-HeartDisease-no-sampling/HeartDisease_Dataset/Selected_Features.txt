@@ -1,0 +1,12 @@
+cp_1
+cp_3
+slope_0
+slope_1
+thal_0
+thal_2
+sex
+exang
+age
+thalach
+oldpeak
+ca
