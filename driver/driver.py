@@ -91,6 +91,7 @@ def driver():
             # train using grid search and params
             model_list = ['KNeighborsClassifier', 'RandomForestClassifier', 
                         'DecisionTreeClassifier', 'SVC', 'MLPClassifier', 'GradientBoostingClassifier']
+            # model_list = ['DecisionTreeClassifier']
 
             plot_obj = Plot(out_file=os.path.join(dataset_dir, f'ROC_plot_fold_{f_ind}.png'))
             for model_name in model_list:
@@ -99,7 +100,8 @@ def driver():
                                                                         dataX=train_x, 
                                                                         dataY=train_y,
                                                                         num_features = num_features,
-                                                                        sample=Sampling.oversample)
+                                                                        sample=Sampling.nosampling,
+                                                                        save_dir=os.path.join(dataset_dir, f'model_{model_name}_{f_ind}.pickle'))
 
                 # save selected features of best model in each fold after nested cross validation
                 with open(os.path.join(dataset_dir, f'Selected_Features_fold_{f_ind}.txt'),'w') as f:

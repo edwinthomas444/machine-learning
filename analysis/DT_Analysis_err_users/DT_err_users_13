@@ -1,0 +1,252 @@
+
+digraph G {
+    splines=line;
+    nodesep=0.1;
+    ranksep=.2;
+    rankdir=TD;
+    margin=0.0;
+    
+    node [margin="0.03" penwidth="0.5" width=.1, height=.1];
+    edge [arrowsize=.4 penwidth="0.3"]
+
+    node2 [margin="0" shape=none label=<<table border="0">
+            
+            <tr>
+                    <td><img src="C:\Users\edwin\AppData\Local\Temp/node2_17976.svg"/></td>
+            </tr>
+            </table>>]
+	node7 [margin="0" shape=none label=<<table border="0">
+            
+            <tr>
+                    <td><img src="C:\Users\edwin\AppData\Local\Temp/node7_17976.svg"/></td>
+            </tr>
+            </table>>]
+	node5 [margin="0" shape=none label=<<table border="0">
+            
+            <tr>
+                    <td><img src="C:\Users\edwin\AppData\Local\Temp/node5_17976.svg"/></td>
+            </tr>
+            </table>>]
+	node1 [margin="0" shape=none label=<<table border="0">
+            
+            <tr>
+                    <td><img src="C:\Users\edwin\AppData\Local\Temp/node1_17976.svg"/></td>
+            </tr>
+            </table>>]
+	node12 [margin="0" shape=none label=<<table border="0">
+            
+            <tr>
+                    <td><img src="C:\Users\edwin\AppData\Local\Temp/node12_17976.svg"/></td>
+            </tr>
+            </table>>]
+	node11 [margin="0" shape=none label=<<table border="0">
+            
+            <tr>
+                    <td><img src="C:\Users\edwin\AppData\Local\Temp/node11_17976.svg"/></td>
+            </tr>
+            </table>>]
+	node17 [margin="0" shape=none label=<<table border="0">
+            
+            <tr>
+                    <td><img src="C:\Users\edwin\AppData\Local\Temp/node17_17976.svg"/></td>
+            </tr>
+            </table>>]
+	node16 [margin="0" shape=box penwidth=".5" color="#D67C03" style="dashed" label=<<table border="0">
+            
+            <tr>
+                    <td><img src="C:\Users\edwin\AppData\Local\Temp/node16_17976.svg"/></td>
+            </tr>
+            </table>>]
+	node10 [margin="0" shape=box penwidth=".5" color="#D67C03" style="dashed" label=<<table border="0">
+            
+            <tr>
+                    <td><img src="C:\Users\edwin\AppData\Local\Temp/node10_17976.svg"/></td>
+            </tr>
+            </table>>]
+	node0 [margin="0" shape=box penwidth=".5" color="#D67C03" style="dashed" label=<<table border="0">
+            
+            <tr>
+                    <td><img src="C:\Users\edwin\AppData\Local\Temp/node0_17976.svg"/></td>
+            </tr>
+            </table>>]
+    node2 -> leaf3 [penwidth=0.3 color="#444443" label=<>]
+	node2 -> leaf4 [penwidth=0.3 color="#444443" label=<>]
+	
+            {
+                rank=same;
+                leaf3 -> leaf4 [style=invis]
+            }
+            
+	node7 -> leaf8 [penwidth=0.3 color="#444443" label=<>]
+	node7 -> leaf9 [penwidth=0.3 color="#444443" label=<>]
+	
+            {
+                rank=same;
+                leaf8 -> leaf9 [style=invis]
+            }
+            
+	node5 -> leaf6 [penwidth=0.3 color="#444443" label=<>]
+	node5 -> node7 [penwidth=0.3 color="#444443" label=<>]
+	
+            {
+                rank=same;
+                leaf6 -> node7 [style=invis]
+            }
+            
+	node1 -> node2 [penwidth=0.3 color="#444443" label=<>]
+	node1 -> node5 [penwidth=0.3 color="#444443" label=<>]
+	
+            {
+                rank=same;
+                node2 -> node5 [style=invis]
+            }
+            
+	node12 -> leaf13 [penwidth=0.3 color="#444443" label=<>]
+	node12 -> leaf14 [penwidth=0.3 color="#444443" label=<>]
+	
+            {
+                rank=same;
+                leaf13 -> leaf14 [style=invis]
+            }
+            
+	node11 -> node12 [penwidth=0.3 color="#444443" label=<>]
+	node11 -> leaf15 [penwidth=0.3 color="#444443" label=<>]
+	
+            {
+                rank=same;
+                node12 -> leaf15 [style=invis]
+            }
+            
+	node17 -> leaf18 [penwidth=0.3 color="#444443" label=<>]
+	node17 -> leaf19 [penwidth=0.3 color="#444443" label=<>]
+	
+            {
+                rank=same;
+                leaf18 -> leaf19 [style=invis]
+            }
+            
+	node16 -> node17 [penwidth=0.3 color="#444443" label=<>]
+	node16 -> leaf20 [penwidth=1.2 color="#D67C03" label=<>]
+	
+            {
+                rank=same;
+                node17 -> leaf20 [style=invis]
+            }
+            
+	node10 -> node11 [penwidth=0.3 color="#444443" label=<>]
+	node10 -> node16 [penwidth=1.2 color="#D67C03" label=<>]
+	
+            {
+                rank=same;
+                node11 -> node16 [style=invis]
+            }
+            
+	node0 -> node1 [penwidth=0.3 color="#444443" label=<&le;>]
+	node0 -> node10 [penwidth=1.2 color="#D67C03" label=<&gt;>]
+	
+            {
+                rank=same;
+                node1 -> node10 [style=invis]
+            }
+            
+    leaf3 [margin="0" shape=box penwidth="0" color="#444443" label=<<table border="0" CELLBORDER="0">
+        
+        <tr>
+                <td><img src="C:\Users\edwin\AppData\Local\Temp/leaf3_17976.svg"/></td>
+        </tr>
+        </table>>]
+	leaf4 [margin="0" shape=box penwidth="0" color="#444443" label=<<table border="0" CELLBORDER="0">
+        
+        <tr>
+                <td><img src="C:\Users\edwin\AppData\Local\Temp/leaf4_17976.svg"/></td>
+        </tr>
+        </table>>]
+	leaf6 [margin="0" shape=box penwidth="0" color="#444443" label=<<table border="0" CELLBORDER="0">
+        
+        <tr>
+                <td><img src="C:\Users\edwin\AppData\Local\Temp/leaf6_17976.svg"/></td>
+        </tr>
+        </table>>]
+	leaf8 [margin="0" shape=box penwidth="0" color="#444443" label=<<table border="0" CELLBORDER="0">
+        
+        <tr>
+                <td><img src="C:\Users\edwin\AppData\Local\Temp/leaf8_17976.svg"/></td>
+        </tr>
+        </table>>]
+	leaf9 [margin="0" shape=box penwidth="0" color="#444443" label=<<table border="0" CELLBORDER="0">
+        
+        <tr>
+                <td><img src="C:\Users\edwin\AppData\Local\Temp/leaf9_17976.svg"/></td>
+        </tr>
+        </table>>]
+	leaf13 [margin="0" shape=box penwidth="0" color="#444443" label=<<table border="0" CELLBORDER="0">
+        
+        <tr>
+                <td><img src="C:\Users\edwin\AppData\Local\Temp/leaf13_17976.svg"/></td>
+        </tr>
+        </table>>]
+	leaf14 [margin="0" shape=box penwidth="0" color="#444443" label=<<table border="0" CELLBORDER="0">
+        
+        <tr>
+                <td><img src="C:\Users\edwin\AppData\Local\Temp/leaf14_17976.svg"/></td>
+        </tr>
+        </table>>]
+	leaf15 [margin="0" shape=box penwidth="0" color="#444443" label=<<table border="0" CELLBORDER="0">
+        
+        <tr>
+                <td><img src="C:\Users\edwin\AppData\Local\Temp/leaf15_17976.svg"/></td>
+        </tr>
+        </table>>]
+	leaf18 [margin="0" shape=box penwidth="0" color="#444443" label=<<table border="0" CELLBORDER="0">
+        
+        <tr>
+                <td><img src="C:\Users\edwin\AppData\Local\Temp/leaf18_17976.svg"/></td>
+        </tr>
+        </table>>]
+	leaf19 [margin="0" shape=box penwidth="0" color="#444443" label=<<table border="0" CELLBORDER="0">
+        
+        <tr>
+                <td><img src="C:\Users\edwin\AppData\Local\Temp/leaf19_17976.svg"/></td>
+        </tr>
+        </table>>]
+	leaf20 [margin="0" shape=box penwidth=".5" color="#D67C03" style="dashed" label=<<table border="0" CELLBORDER="0">
+        
+        <tr>
+                <td><img src="C:\Users\edwin\AppData\Local\Temp/leaf20_17976.svg"/></td>
+        </tr>
+        </table>>]
+
+    
+            subgraph cluster_legend {
+                style=invis;
+                legend [penwidth="0" margin="0" shape=box margin="0.03" width=.1, height=.1 label=<
+                
+        <table border="0" cellspacing="0" cellpadding="0">
+            <tr>
+                <td border="0" cellspacing="0" cellpadding="0"><img src="C:\Users\edwin\AppData\Local\Temp/legend_17976.svg"/></td>
+            </tr>
+        </table>
+        
+                >]
+            }
+            
+    
+            subgraph cluster_instance {
+                style=invis;
+                X_y [penwidth="0.3" margin="0" shape=box margin="0.03" width=.1, height=.1 label=<
+                
+                <table border="0" cellspacing="0" cellpadding="0">
+                <tr>
+                    <td cellpadding="1" align="right" bgcolor="white"><font face="Helvetica" color="#444443" point-size="11">Age</font></td><td cellpadding="1" align="right" bgcolor="white"><font face="Helvetica" color="#D67C03" point-size="11">Country</font></td><td cellpadding="1" align="right" bgcolor="white"><font face="Helvetica" color="#444443" point-size="11">Oscore</font></td><td cellpadding="1" align="right" bgcolor="white"><font face="Helvetica" color="#D67C03" point-size="11">Cscore</font></td><td cellpadding="1" align="right" bgcolor="white"><font face="Helvetica" color="#444443" point-size="11">Impulsive</font></td><td cellpadding="1" align="right" bgcolor="white"><font face="Helvetica" color="#D67C03" point-size="11">SS</font></td>
+                </tr>
+                <tr>
+                    <td cellpadding="1" align="right" bgcolor="white"><font face="Helvetica" color="#444443" point-size="11">0.00</font></td><td cellpadding="1" align="right" bgcolor="white"><font face="Helvetica" color="#D67C03" point-size="11">1.00</font></td><td cellpadding="1" align="right" bgcolor="white"><font face="Helvetica" color="#444443" point-size="11">0.53</font></td><td cellpadding="1" align="right" bgcolor="white"><font face="Helvetica" color="#D67C03" point-size="11">0.80</font></td><td cellpadding="1" align="right" bgcolor="white"><font face="Helvetica" color="#444443" point-size="11">0.63</font></td><td cellpadding="1" align="right" bgcolor="white"><font face="Helvetica" color="#D67C03" point-size="11">0.62</font></td>
+                </tr>
+                </table>
+                
+                >]
+            }
+            leaf20 -> X_y [dir=back; penwidth="1.2" color="#D67C03" label=<<font face="Helvetica" color="#444443" point-size="11"> &#160;Prediction<br/> non-user</font>>]
+            
+}
+    

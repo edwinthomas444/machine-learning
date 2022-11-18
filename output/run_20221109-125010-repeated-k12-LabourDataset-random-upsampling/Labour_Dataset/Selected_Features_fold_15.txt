@@ -1,0 +1,12 @@
+pension_none
+vacation_ba
+vacation_gnr
+dntl_ins_full
+empl_hplan_none
+educ_allw_false
+lngtrm_disabil_false
+wage1
+wage2
+wage3
+hours
+holidays

@@ -78,6 +78,7 @@ def compute_metrics(y_true, y_pred, y_pred_prob=None):
         'auc':auc_score,
         'precision':compute_precision(y_true, y_pred),
         'recall':compute_recall(y_true, y_pred),
+        'precision_n':compute_precision(y_true, y_pred,pos_class=False),
         'f1':compute_fscore(y_true, y_pred, beta=1),
         'sensitivity':compute_senitivity(y_true, y_pred),
         'specificity':compute_specificity(y_true, y_pred),
