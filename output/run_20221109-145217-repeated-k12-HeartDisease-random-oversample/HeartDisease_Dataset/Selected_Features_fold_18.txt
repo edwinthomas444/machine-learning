@@ -1,0 +1,14 @@
+sex_0
+sex_1
+cp_1
+cp_2
+cp_3
+exang_0
+exang_1
+slope_0
+slope_1
+ca_0
+thal_0
+thal_2
+thalach
+oldpeak

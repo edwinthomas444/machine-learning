@@ -35,6 +35,8 @@ from imblearn.under_sampling import OneSidedSelection
 from imblearn.over_sampling import BorderlineSMOTE
 from enum import Enum
 
+import joblib
+
 models = [
     'KNeighborsClassifier',
     'RandomForestClassifier',
@@ -57,7 +59,7 @@ class Model:
     def get_model(self):
         return self.mod
 
-    def custom_grid_search(self, params, dataX, dataY, num_features, sample=Sampling.nosampling):
+    def custom_grid_search(self, params, dataX, dataY, num_features, sample=Sampling.nosampling, save_dir=None):
         cv_inner_hp= StratifiedKFold(n_splits=9, shuffle=True, random_state=1)
         custom_scorer = make_scorer(score_fn_hybrid, greater_is_better=True)
         new_params = {f'{self.name.lower()}__' + key: params[key] for key in params}
@@ -66,7 +68,7 @@ class Model:
             # RandomOverSampler(random_state=32)
             # BorderlineSMOTE(random_state=32)
             imba_pipeline = make_pipeline(SimpleImputer(missing_values=np.nan, strategy='mean'),
-                                          RandomOverSampler(random_state=32, n_jobs=-1),
+                                          RandomOverSampler(random_state=32),
                                           MinMaxScaler(),
                                           SelectKBest(f_classif, k=num_features),
                                           self.mod)
@@ -78,7 +80,7 @@ class Model:
             # RandomUnderSampler(random_state=32)
             # OneSidedSelection(random_state=32)
             imba_pipeline = make_pipeline(SimpleImputer(missing_values=np.nan, strategy='mean'),
-                                          RandomUnderSampler(random_state=32)(random_state=32, n_jobs=-1),
+                                          RandomUnderSampler(random_state=32),
                                           MinMaxScaler(),
                                           SelectKBest(f_classif, k=num_features),
                                           self.mod)
@@ -93,7 +95,12 @@ class Model:
 
             grid = GridSearchCV(estimator=pipeline, param_grid=new_params, scoring=custom_scorer, 
                                 cv=cv_inner_hp, verbose=10, return_train_score=True, refit=True, n_jobs=-1)
+            
+
+            
         grid.fit(dataX, dataY)
+        # save best decision tree in each fold
+        joblib.dump(grid, save_dir)
 
         # update mod
         self.mod = grid.best_estimator_

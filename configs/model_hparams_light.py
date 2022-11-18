@@ -4,6 +4,8 @@ tree_params = {'class_weight':['balanced',None],
               'min_samples_leaf':list(range(1,30,2)),
               'max_features':['sqrt', None],
               'splitter':['best'],
+              'max_depth':[2,3,4,5,6],
+              'ccp_alpha':[0.015, 0.005, 0.010],
               'random_state':[3]}
 
 
