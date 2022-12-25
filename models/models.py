@@ -116,5 +116,5 @@ class Model:
         all_model_metrics = compute_metrics(Y, pred_class, pred_prob)
         all_model_metrics['model_name'] = self.name
         return all_model_metrics
-
+        
 
