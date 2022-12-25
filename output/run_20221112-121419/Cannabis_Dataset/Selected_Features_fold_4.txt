@@ -1,6 +1,0 @@
-Age
-Country
-Oscore
-Cscore
-Impulsive
-SS

@@ -2,7 +2,12 @@ from sklearn.metrics import confusion_matrix
 from sklearn.metrics import ConfusionMatrixDisplay
 from sklearn.metrics import roc_curve, auc, RocCurveDisplay
 import math
+import numpy as np
 
+def compute_multiclass_accuracy(y_true, y_pred):
+    correct = np.sum(np.array(y_true)==np.array(y_pred))
+    acc = correct/float(len(y_true))
+    return acc
 
 def compute_precision(y_true, y_pred, pos_class=True):
     true_neg, false_pos, false_neg, true_pos = confusion_matrix(y_true, y_pred).ravel()
