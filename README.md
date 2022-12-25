@@ -1,10 +1,8 @@
-# CSI-5155 Machine Learning
-## Assignment 1: Drug Consumption Classification
+# Machine Learning
 
-An automated tool for binary classification and hyper-parameter optimization. 
-Trains different architectures (KNN, DT, Random Forests, SVM etc.) and generates metric dumps and performance evaluation graphs (ROCs) comparing the best models.
+An automated tool for binary and multi-class classification and hyper-parameter optimization on stationary and streaming type datasets. 
+Trains different architectures for traditional batch-type datasets (KNN, DT, Random Forests, SVM, Bagging, Boosting etc.) and streaming datasets (Hoeffding Tree classifier, SAM-KNN, Adaptive Hoeffding Trees, Adaptive Random Forests, OzaBag, OzaBoost etc.) and generates metric dumps and performance evaluation graphs (ROCs) comparing the best models.
 
-`Report.pdf` file contains analysis of the experiments and refers to two folders namely `output\run_20221003-192909-k6-latest` for the 6 feature run and `run_20221003-204218-k12-latest` for 12 feature run. Each run folder has Confusion matrices for each model, chosen features and combined ROC plots. 
 
 ### File Structure
 ```
