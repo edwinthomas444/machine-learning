@@ -1,7 +1,7 @@
 # Machine Learning
 
 An automated tool for binary and multi-class classification and hyper-parameter optimization on stationary and streaming type datasets. 
-Trains different architectures for traditional batch-type datasets (KNN, DT, Random Forests, SVM, Bagging, Boosting etc.) and streaming datasets (Hoeffding Tree classifier, SAM-KNN, Adaptive Hoeffding Trees, Adaptive Random Forests, OzaBag, OzaBoost etc.) and generates metric dumps and performance evaluation graphs (ROCs) comparing the best models. Hypothesis Testing using Friedmans Statistics and Nemenyis Post-hoc test is also added for comparing model performances using statistical techniques.
+Trains different architectures for traditional batch-type datasets (KNN, DT, Random Forests, SVM, Bagging, Boosting etc.) and streaming datasets (Hoeffding Tree classifier, SAM-KNN, Adaptive Hoeffding Trees, Adaptive Random Forests, OzaBag, OzaBoost etc.) and generates metric dumps and performance evaluation graphs (ROCs) comparing the best models. Hypothesis Testing using Friedmans Statistics and Nemenyis Post-hoc test is also added for comparative analysis of algorithms using statistical techniques.
 
 
 ### File Structure
