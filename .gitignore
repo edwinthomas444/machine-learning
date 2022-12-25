@@ -4,3 +4,7 @@ __pycache__/
 reports/
 */.ipynb_checkpoints/*
 .ipynb_checkpoints
+
+.vscode/
+
+data/
